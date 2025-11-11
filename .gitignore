@@ -1,0 +1,31 @@
+# 🧠 Ambientes virtuais Python
+venv/
+.env/
+
+# 🐍 Arquivos de cache e compilação
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 📦 Dependências / builds
+build/
+dist/
+*.egg-info/
+*.egg
+
+# ⚙️ Configurações de IDEs
+.vscode/
+.idea/
+
+# 🧾 Logs
+*.log
+
+# 🧪 Testes e relatórios temporários
+.pytest_cache/
+.coverage
+coverage.xml
+
+# 🧱 Sistema operacional
+Thumbs.db
+.DS_Store
