@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Button = ({ children, onClick, type = 'button', styleType = 'default' }) => {
+const Button = ({ children, onClick, type = 'button', styleType = 'default', style, ...props }) => {
   const baseStyle = {
     padding: '10px 20px',
     border: '1px solid #ddd',
@@ -17,10 +17,15 @@ const Button = ({ children, onClick, type = 'button', styleType = 'default' }) =
     borderColor: '#007bff'
   };
   
-  const style = styleType === 'primary' ? primaryStyle : baseStyle;
+  const internalStyle = styleType === 'primary' ? primaryStyle : baseStyle;
+
+  const finalStyle = {
+    ...internalStyle,
+    ...style 
+  };
 
   return (
-    <button type={type} onClick={onClick} style={style}>
+    <button type={type} onClick={onClick} style={finalStyle} {...props}>
       {children}
     </button>
   );
