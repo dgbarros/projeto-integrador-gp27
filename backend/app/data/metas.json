@@ -1,1 +1,14 @@
+<<<<<<< HEAD
 []
+=======
+[
+    {
+        "id": 1,
+        "titulo": "Melhorar taxa de conversão ",
+        "kpi": "taxa em porcentagem",
+        "valor_alvo": 10.0,
+        "prazo": "2025-11-30",
+        "status": "Aprovada"
+    }
+]
+>>>>>>> main
