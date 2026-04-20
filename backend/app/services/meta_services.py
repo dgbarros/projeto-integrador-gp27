@@ -1,25 +1,83 @@
-import json
-import os
-from typing import List
-from app.models.meta_model import Meta
-
-FILE_PATH = os.path.join(os.path.dirname(__file__), "../data/metas.json")
+from app.core.config import SessionLocal
+from app.models.meta_db import MetaDB
 
 
-def carregar_metas() -> List[Meta]:
-    """Lê o arquivo JSON e retorna a lista de metas"""
-    if not os.path.exists(FILE_PATH):
-        return []
-    with open(FILE_PATH, "r", encoding="utf-8") as f:
-        try:
-            data = json.load(f)
-            return [Meta(**meta) for meta in data]
-        except json.JSONDecodeError:
-            return []
+def get_db():
+    return SessionLocal()
 
 
-def salvar_metas(metas: List[Meta]):
-    """Salva a lista de metas no arquivo JSON"""
-    with open(FILE_PATH, "w", encoding="utf-8") as f:
-        json.dump([meta.dict() for meta in metas],
-                  f, indent=4, ensure_ascii=False)
+def listar_metas():
+    db = get_db()
+    metas = db.query(MetaDB).all()
+    db.close()
+    return metas
+
+
+def get_meta(meta_id: int):
+    db = get_db()
+    meta = db.query(MetaDB).filter(MetaDB.id == meta_id).first()
+    db.close()
+    return meta
+
+
+def criar_meta(meta):
+    db = get_db()
+
+    nova = MetaDB(**meta.dict())
+
+    db.add(nova)
+    db.commit()
+    db.refresh(nova)
+    db.close()
+
+    return nova
+
+
+def deletar_meta(meta_id: int):
+    db = get_db()
+    meta = db.query(MetaDB).filter(MetaDB.id == meta_id).first()
+
+    if not meta:
+        db.close()
+        return None
+
+    db.delete(meta)
+    db.commit()
+    db.close()
+
+    return True
+
+
+def aprovar_meta(meta_id: int):
+    db = get_db()
+    meta = db.query(MetaDB).filter(MetaDB.id == meta_id).first()
+
+    if not meta:
+        db.close()
+        return None
+
+    meta.status = "Aprovada"
+    db.commit()
+    db.refresh(meta)
+    db.close()
+
+    return meta
+
+
+def editar_meta(meta_id: int, dados: dict):
+    db = get_db()
+    meta = db.query(MetaDB).filter(MetaDB.id == meta_id).first()
+
+    if not meta:
+        db.close()
+        return None
+
+    for key, value in dados.items():
+        if value is not None:
+            setattr(meta, key, value)
+
+    db.commit()
+    db.refresh(meta)
+    db.close()
+
+    return meta
