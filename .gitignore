@@ -1,31 +1,40 @@
-# 🧠 Ambientes virtuais Python
+#  Ambientes virtuais e Variáveis de Ambiente
 venv/
-.env/
+.env
 
-# 🐍 Arquivos de cache e compilação
+# Dependências do Frontend (Node/React)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Banco de Dados Local
+*.db
+*.sqlite3
+
+# Arquivos de cache e compilação Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# 📦 Dependências / builds
+# Dependências / builds Python
 build/
 dist/
 *.egg-info/
 *.egg
 
-# ⚙️ Configurações de IDEs
+# Configurações de IDEs
 .vscode/
 .idea/
 
-# 🧾 Logs
+# Logs
 *.log
 
-# 🧪 Testes e relatórios temporários
+# Testes e relatórios temporários
 .pytest_cache/
 .coverage
 coverage.xml
 
-# 🧱 Sistema operacional
+# Sistema operacional
 Thumbs.db
 .DS_Store
