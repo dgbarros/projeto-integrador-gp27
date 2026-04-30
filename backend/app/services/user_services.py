@@ -2,16 +2,21 @@ from app.core.config import SessionLocal
 from app.models.user_db import UserDB
 from app.models.user_model import UserCreate
 from passlib.context import CryptContext
+import hashlib
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_senha(senha: str):
-    return pwd_context.hash(senha)
+    senha_bytes = senha.encode("utf-8")
+    senha_hash = hashlib.sha256(senha_bytes).digest()
+    return pwd_context.hash(senha_hash)
 
 
 def verificar_senha(senha: str, hash: str):
-    return pwd_context.verify(senha, hash)
+    senha_bytes = senha.encode("utf-8")
+    senha_hash = hashlib.sha256(senha_bytes).digest()
+    return pwd_context.verify(senha_hash, hash)
 
 
 def get_db():
@@ -21,16 +26,22 @@ def get_db():
 def criar_usuario(user: UserCreate):
     db = get_db()
 
+    print("CRIANDO USUÁRIO:", user.email)
+
     novo_user = UserDB(
         nome=user.nome,
         email=user.email,
-        senha_hash=hash_senha(user.senha)  # ✅ corrigido
+        senha_hash=hash_senha(user.senha) 
     )
 
     db.add(novo_user)
     db.commit()
     db.refresh(novo_user)
+
+    print("SALVO NO DB:", novo_user.id)
+
     db.close()
+
 
     return novo_user
 
@@ -40,7 +51,6 @@ def login(email: str, senha: str):
 
     user = db.query(UserDB).filter(UserDB.email == email).first()
 
-    # ✅ corrigido
     if not user or not verificar_senha(senha, user.senha_hash):
         db.close()
         return None

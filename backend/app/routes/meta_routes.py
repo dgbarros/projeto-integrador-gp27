@@ -35,6 +35,14 @@ def aprovar_meta(meta_id: int):
 
     return meta
 
+@router.put("/revisar/{meta_id}", response_model=Meta)
+def revisar_meta(meta_id: int):
+    meta = meta_services.revisar_meta(meta_id)
+
+    if not meta:
+        raise HTTPException(status_code=404, detail="Meta não encontrada")
+
+    return meta
 
 @router.put("/{meta_id}", response_model=Meta)
 def editar_meta(meta_id: int, meta_atualizada: MetaUpdate):

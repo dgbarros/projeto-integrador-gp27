@@ -63,6 +63,21 @@ def aprovar_meta(meta_id: int):
 
     return meta
 
+def revisar_meta(meta_id: int):
+    db = get_db()
+    meta = db.query(MetaDB).filter(MetaDB.id == meta_id).first()
+
+    if not meta:
+        db.close()
+        return None
+
+    meta.status = "Revisão solicitada"
+    db.commit()
+    db.refresh(meta)
+    db.close()
+
+    return meta
+
 
 def editar_meta(meta_id: int, dados: dict):
     db = get_db()
