@@ -1,30 +1,17 @@
 from typing import Optional
 from pydantic import BaseModel
-from datetime import date
 
-class MetaBase(BaseModel):
+class Meta(BaseModel):
+    id: Optional[int] = None
     titulo: str
-    descricao: str
-    data_inicio: date
-    data_fim: date
-    usuario_id: int
-    status: str = "Pendente"
-
-
-class MetaCreate(MetaBase):
-    pass
-
-
-class Meta(MetaBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
+    kpi: str
+    valor_alvo: float
+    prazo: str
+    status: str = "Pendente de aprovação"
 
 class MetaUpdate(BaseModel):
     titulo: Optional[str] = None
-    descricao: Optional[str] = None
+    kpi: Optional[str] = None
+    valor_alvo: Optional[float] = None
+    prazo: Optional[str] = None
     status: Optional[str] = None
-    data_inicio: Optional[date] = None
-    data_fim: Optional[date] = None

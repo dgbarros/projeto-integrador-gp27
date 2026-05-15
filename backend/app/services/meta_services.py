@@ -1,9 +1,9 @@
-from app.core.config import SessionLocal
-from app.models.meta_db import MetaDB
+import json
+import os
+from typing import List
+from app.models.meta_model import Meta
 
-
-def get_db():
-    return SessionLocal()
+FILE_PATH = os.path.join(os.path.dirname(__file__), "../data/metas.json")
 
 
 def listar_metas():
