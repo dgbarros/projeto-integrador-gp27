@@ -1,77 +1,90 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, CardContent, Typography, Stack } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
+import {
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const GoalList = () => {
   const [metas, setMetas] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/metas/get_metas")
-      .then((res) => res.json())
+    const token = localStorage.getItem("token");
+
+    fetch("http://127.0.0.1:8000/metas/get_metas", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar metas");
+        return res.json();
+      })
       .then((data) => setMetas(data))
       .catch((error) => console.error("Erro ao buscar metas:", error));
   }, []);
 
-  const atualizarStatus = (id, novoStatus) => {
-    fetch(
-      `http://127.0.0.1:8000/metas/update_status/${id}?novo_status=${novoStatus}`,
-      {
-        method: "PUT",
-      }
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao atualizar status");
-        return res.json();
-      })
-      .then(() => {
-        setMetas((prevMetas) =>
-          prevMetas.map((meta) =>
-            meta.id === id ? { ...meta, status: novoStatus } : meta
-          )
-        );
-      })
-      .catch((error) => console.error(error));
+  const handleAprovar = async (id) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/metas/update_status/${id}?novo_status=Aprovada`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!res.ok) throw new Error("Erro ao aprovar meta");
+
+      setMetas((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, status: "Aprovada" } : m,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleRevisar = async (id) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/metas/revisar/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!res.ok) throw new Error("Erro ao solicitar revisão");
+
+      setMetas((prev) =>
+        prev.map((m) =>
+          m.id === id
+            ? { ...m, status: "Revisão solicitada" }
+            : m,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditar = (id) => {
-    navigate(`/editar/${id}`);
-  };
-
-  const handleAprovar = async (meta) => {
-    try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/metas/update_status/${meta.id}?novo_status=Aprovada`,
-        {
-          method: "PUT",
-        }
-      );
-      if (!res.ok) throw new Error("Erro ao atualizar status");
-      const novasMetas = metas.map((m) =>
-        m.id === meta.id ? { ...m, status: "Aprovada" } : m
-      );
-      setMetas(novasMetas);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleRevisao = async (meta) => {
-    try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/metas/update_status/${meta.id}?novo_status=Revisão Solicitada`,
-        {
-          method: "PUT",
-        }
-      );
-      if (!res.ok) throw new Error("Erro ao atualizar status");
-      const novasMetas = metas.map((m) =>
-        m.id === meta.id ? { ...m, status: "Revisão Solicitada" } : m
-      );
-      setMetas(novasMetas);
-    } catch (error) {
-      console.error(error);
-    }
+    navigate(`/metas/editar/${id}`);
   };
 
   return (
@@ -81,7 +94,9 @@ const GoalList = () => {
       </Typography>
 
       {metas.length === 0 ? (
-        <Typography variant="body1">Nenhuma meta cadastrada.</Typography>
+        <Typography variant="body1">
+          Nenhuma meta cadastrada.
+        </Typography>
       ) : (
         metas.map((meta) => (
           <Card
@@ -98,10 +113,11 @@ const GoalList = () => {
               <Typography variant="h6" fontWeight="bold">
                 {meta.titulo}
               </Typography>
+
               <Typography variant="body2" sx={{ marginBottom: 1 }}>
-                Métrica: {meta.kpi}
+                KPI: {meta.kpi}
                 <br />
-                Valor-Alvo: {meta.valor_alvo}%
+                Valor-Alvo: {meta.valor_alvo}
                 <br />
                 Prazo: {meta.prazo}
                 <br />
@@ -113,14 +129,15 @@ const GoalList = () => {
               <Button
                 variant="contained"
                 color="success"
-                onClick={() => handleAprovar(meta)}
+                onClick={() => handleAprovar(meta.id)}
               >
                 Aprovar
               </Button>
+
               <Button
                 variant="contained"
                 color="warning"
-                onClick={() => handleRevisao(meta)}
+                onClick={() => handleRevisar(meta.id)}
               >
                 Revisão
               </Button>

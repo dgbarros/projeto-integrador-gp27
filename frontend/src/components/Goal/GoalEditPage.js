@@ -18,8 +18,19 @@ const GoalEditPage = () => {
   const [openModal, setOpenModal] = useState(false); 
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/metas/get_meta/${id}`)
-      .then((res) => res.json())
+    const token = localStorage.getItem("token");
+
+    
+    fetch(`http://127.0.0.1:8000/metas/${id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro de permissão ou meta não encontrada");
+        return res.json();
+      })
       .then((data) => setMeta(data))
       .catch((err) => console.error("Erro ao buscar meta:", err));
   }, [id]);
@@ -29,9 +40,14 @@ const GoalEditPage = () => {
   };
 
   const handleSave = () => {
-    fetch(`http://127.0.0.1:8000/metas/editar/${id}`, {
+    const token = localStorage.getItem("token");
+
+    fetch(`http://127.0.0.1:8000/metas/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
       body: JSON.stringify(meta),
     })
       .then((res) => {
@@ -43,7 +59,7 @@ const GoalEditPage = () => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    navigate("/"); 
+    navigate("/metas"); 
   };
 
   if (!meta) return <Typography>Carregando...</Typography>;
@@ -83,19 +99,21 @@ const GoalEditPage = () => {
 
       <TextField
         fullWidth
-        label="Valor-Alvo (%)"
+        label="Valor-Alvo"
         name="valor_alvo"
+        type="number" 
         value={meta.valor_alvo}
         onChange={handleChange}
         margin="normal"
       />
 
+     
       <TextField
         fullWidth
         label="Prazo"
-        name="prazo"
+        name="data_fim" 
         type="date"
-        value={meta.prazo}
+        value={meta.data_fim || meta.prazo || ""} 
         onChange={handleChange}
         margin="normal"
         InputLabelProps={{ shrink: true }}
@@ -106,7 +124,7 @@ const GoalEditPage = () => {
           variant="outlined"
           color="secondary"
           sx={{ marginRight: 2 }}
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/metas")} 
         >
           Cancelar
         </Button>
