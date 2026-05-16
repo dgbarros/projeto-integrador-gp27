@@ -6,16 +6,15 @@ import hashlib
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 def hash_senha(senha: str):
     senha_bytes = senha.encode("utf-8")
-    senha_hash = hashlib.sha256(senha_bytes).digest()
+    senha_hash = hashlib.sha256(senha_bytes).hexdigest()
     return pwd_context.hash(senha_hash)
 
 
 def verificar_senha(senha: str, hash: str):
     senha_bytes = senha.encode("utf-8")
-    senha_hash = hashlib.sha256(senha_bytes).digest()
+    senha_hash = hashlib.sha256(senha_bytes).hexdigest()
     return pwd_context.verify(senha_hash, hash)
 
 
