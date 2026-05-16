@@ -15,6 +15,7 @@ const GoalForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -26,34 +27,56 @@ const GoalForm = () => {
 
     const token = localStorage.getItem("token");
 
+    const valorConvertido = Number(
+      formData.valor_alvo.toString().replace(",", "."),
+    );
+
+    if (isNaN(valorConvertido)) {
+      alert("Digite um valor numérico válido");
+      return;
+    }
+
+    const dados = {
+      titulo: formData.titulo,
+      kpi: formData.kpi,
+      valor_alvo: valorConvertido,
+      prazo: formData.prazo,
+      status: "Pendente de aprovação",
+    };
+
+    console.log("ENVIANDO:", dados);
+
     try {
-      const response = await fetch("http://127.0.0.1:8000/metas/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        "http://127.0.0.1:8000/metas/post_cadastrar_metas",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(dados),
         },
-        body: JSON.stringify({
-          titulo: formData.titulo,
-          kpi: formData.kpi,
-          valor_alvo: parseFloat(formData.valor_alvo),
-          descricao: "Meta criada via formulário", 
-          data_inicio: new Date().toISOString().split("T")[0], 
-          data_fim: formData.prazo,
-          usuario_id: 2, 
-        }),
-      });
+      );
+
+      const data = await response.json();
+
+      console.log("RESPOSTA:", data);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Detalhes do erro:", errorData);
-        throw new Error("Erro ao enviar meta");
+        throw new Error("Erro ao cadastrar meta");
       }
 
-      setFormData({ titulo: "", kpi: "", valor_alvo: "", prazo: "" });
+      setFormData({
+        titulo: "",
+        kpi: "",
+        valor_alvo: "",
+        prazo: "",
+      });
+
       setOpen(true);
     } catch (error) {
-      console.error("Erro ao cadastrar meta:", error);
+      console.error(error);
     }
   };
 
@@ -66,6 +89,7 @@ const GoalForm = () => {
           value={formData.titulo}
           onChange={handleChange}
         />
+
         <Input
           label="Métrica (KPI)"
           name="kpi"
@@ -75,6 +99,7 @@ const GoalForm = () => {
         <Input
           label="Valor-Alvo"
           name="valor_alvo"
+          type="number"
           value={formData.valor_alvo}
           onChange={handleChange}
         />

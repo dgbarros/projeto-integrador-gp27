@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, CardContent, Typography, Stack } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const GoalList = () => {
@@ -9,32 +15,40 @@ const GoalList = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://127.0.0.1:8000/metas/", {
+    fetch("http://127.0.0.1:8000/metas/get_metas", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Erro de permissão ou rota");
+        if (!res.ok) throw new Error("Erro ao buscar metas");
         return res.json();
       })
       .then((data) => setMetas(data))
       .catch((error) => console.error("Erro ao buscar metas:", error));
-  }, []); 
+  }, []);
 
   const handleAprovar = async (id) => {
     const token = localStorage.getItem("token");
+
     try {
-      const res = await fetch(`http://127.0.0.1:8000/metas/aprovar/${id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `http://127.0.0.1:8000/metas/update_status/${id}?novo_status=Aprovada`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       if (!res.ok) throw new Error("Erro ao aprovar meta");
 
       setMetas((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status: "Aprovada" } : m)),
+        prev.map((m) =>
+          m.id === id ? { ...m, status: "Aprovada" } : m,
+        ),
       );
     } catch (error) {
       console.error(error);
@@ -43,16 +57,26 @@ const GoalList = () => {
 
   const handleRevisar = async (id) => {
     const token = localStorage.getItem("token");
+
     try {
-      const res = await fetch(`http://127.0.0.1:8000/metas/revisar/${id}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `http://127.0.0.1:8000/metas/revisar/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       if (!res.ok) throw new Error("Erro ao solicitar revisão");
 
       setMetas((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status: "Revisão solicitada" } : m)),
+        prev.map((m) =>
+          m.id === id
+            ? { ...m, status: "Revisão solicitada" }
+            : m,
+        ),
       );
     } catch (error) {
       console.error(error);
@@ -60,7 +84,7 @@ const GoalList = () => {
   };
 
   const handleEditar = (id) => {
-    navigate(`/metas/editar/${id}`); 
+    navigate(`/metas/editar/${id}`);
   };
 
   return (
@@ -70,7 +94,9 @@ const GoalList = () => {
       </Typography>
 
       {metas.length === 0 ? (
-        <Typography variant="body1">Nenhuma meta cadastrada.</Typography>
+        <Typography variant="body1">
+          Nenhuma meta cadastrada.
+        </Typography>
       ) : (
         metas.map((meta) => (
           <Card
@@ -87,12 +113,13 @@ const GoalList = () => {
               <Typography variant="h6" fontWeight="bold">
                 {meta.titulo}
               </Typography>
+
               <Typography variant="body2" sx={{ marginBottom: 1 }}>
-                Métrica: {meta.kpi}
+                KPI: {meta.kpi}
                 <br />
                 Valor-Alvo: {meta.valor_alvo}
                 <br />
-                Prazo: {meta.data_fim || meta.prazo}
+                Prazo: {meta.prazo}
                 <br />
                 <b>Status:</b> {meta.status}
               </Typography>
@@ -102,10 +129,11 @@ const GoalList = () => {
               <Button
                 variant="contained"
                 color="success"
-                onClick={() => handleAprovar(meta.id, "Aprovada")}
+                onClick={() => handleAprovar(meta.id)}
               >
                 Aprovar
               </Button>
+
               <Button
                 variant="contained"
                 color="warning"
@@ -113,6 +141,7 @@ const GoalList = () => {
               >
                 Revisão
               </Button>
+
               <Button
                 variant="outlined"
                 color="primary"
