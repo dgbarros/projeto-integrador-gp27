@@ -1,0 +1,35 @@
+@echo off
+echo ===========================================
+echo   SCRIPT DE ATUALIZACAO - PROJETO INTEGRADOR
+echo ===========================================
+
+REM Ir para a pasta do projeto (ajuste o caminho abaixo se necessario)
+cd /d "%~dp0"
+
+echo.
+echo Verificando atualizacoes do repositório...
+git pull
+
+echo.
+echo Adicionando novos arquivos...
+git add .
+
+echo.
+set /p mensagem=Digite a mensagem do commit (ou pressione Enter para usar a padrao): 
+if "%mensagem%"=="" set mensagem=Adiciona componentes e paginas faltantes conforme documentacao
+
+git commit -m "%mensagem%"
+
+echo.
+set /p branch=Digite o nome da branch (padrao: jessicacandido-patch-1): 
+if "%branch%"=="" set branch=jessicacandido-patch-1
+
+echo.
+echo Enviando alteracoes para o GitHub...
+git push origin %branch%
+
+echo.
+echo ===========================================
+echo      PUSH CONCLUIDO COM SUCESSO!
+echo ===========================================
+pause
